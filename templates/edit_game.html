@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Game - Game Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+.drop-zone {
+    border: 2px dashed #ced4da;
+    border-radius: 10px;
+    min-height: 200px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.drop-zone.drag-over {
+    border-style: solid;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-edit me-2"></i>Edit Game: {{ game.title }}</h2>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-gamepad me-2"></i>Game Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="editForm">
+                        <div class="row">
+                            <!-- Game Logo Upload -->
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Game Logo</label>
+                                <div class="drop-zone d-flex align-items-center justify-content-center flex-column p-4" 
+                                     id="dropZone">
+                                    {% if game.logo %}
+                                    <div id="imagePreview">
+                                        <img id="previewImg" src="{{ url_for('uploaded_file', filename=game.logo) }}" 
+                                             class="preview-image" alt="Current logo">
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                                <i class="fas fa-times me-1"></i>Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="dropZoneContent" style="display: none;">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                        <h5>Drag & Drop New Logo Here</h5>
+                                        <p class="text-muted mb-2">or click to browse files</p>
+                                        <small class="text-muted">Supports: JPG, PNG, GIF (Max: 16MB)</small>
+                                    </div>
+                                    {% else %}
+                                    <div id="dropZoneContent">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                        <h5>Drag & Drop Logo Here</h5>
+                                        <p class="text-muted mb-2">or click to browse files</p>
+                                        <small class="text-muted">Supports: JPG, PNG, GIF (Max: 16MB)</small>
+                                    </div>
+                                    <div id="imagePreview" style="display: none;">
+                                        <img id="previewImg" class="preview-image" alt="Preview">
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                                <i class="fas fa-times me-1"></i>Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <input type="file" id="logoFile" name="logo" accept="image/*" style="display: none;">
+                            </div>
+
+                            <!-- Game Details -->
+                            <div class="col-md-6">
+                                <!-- Title -->
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Game Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           value="{{ game.title }}" placeholder="Enter game title">
+                                </div>
+
+                                <!-- Genre -->
+                                <div class="mb-3">
+                                    <label for="genre" class="form-label">Genre</label>
+                                    <select class="form-select" id="genre" name="genre">
+                                        <option value="">Select Genre</option>
+                                        <option value="Action" {% if game.genre == 'Action' %}selected{% endif %}>Action</option>
+                                        <option value="Adventure" {% if game.genre == 'Adventure' %}selected{% endif %}>Adventure</option>
+                                        <option value="RPG" {% if game.genre == 'RPG' %}selected{% endif %}>RPG</option>
+                                        <option value="Strategy" {% if game.genre == 'Strategy' %}selected{% endif %}>Strategy</option>
+                                        <option value="Sports" {% if game.genre == 'Sports' %}selected{% endif %}>Sports</option>
+                                        <option value="Racing" {% if game.genre == 'Racing' %}selected{% endif %}>Racing</option>
+                                        <option value="Puzzle" {% if game.genre == 'Puzzle' %}selected{% endif %}>Puzzle</option>
+                                        <option value="Horror" {% if game.genre == 'Horror' %}selected{% endif %}>Horror</option>
+                                        <option value="Simulation" {% if game.genre == 'Simulation' %}selected{% endif %}>Simulation</option>
+                                        <option value="Fighting" {% if game.genre == 'Fighting' %}selected{% endif %}>Fighting</option>
+                                        <option value="Platform" {% if game.genre == 'Platform' %}selected{% endif %}>Platform</option>
+                                        <option value="Shooter" {% if game.genre == 'Shooter' %}selected{% endif %}>Shooter</option>
+                                        <option value="MMORPG" {% if game.genre == 'MMORPG' %}selected{% endif %}>MMORPG</option>
+                                        <option value="Casual" {% if game.genre == 'Casual' %}selected{% endif %}>Casual</option>
+                                        <option value="Indie" {% if game.genre == 'Indie' %}selected{% endif %}>Indie</option>
+                                        <option value="Other" {% if game.genre == 'Other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+
+                                <!-- Tags -->
+                                <div class="mb-3">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags" 
+                                           value="{{ game.tags | join(', ') if game.tags else '' }}"
+                                           placeholder="Enter tags separated by commas">
+                                    <small class="form-text text-muted">Example: multiplayer, open-world, fantasy</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required 
+                                      placeholder="Enter a detailed description of the game...">{{ game.description }}</textarea>
+                        </div>
+
+                        <!-- Download Link -->
+                        <div class="mb-4">
+                            <label for="download_link" class="form-label">Download Link *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                <input type="url" class="form-control" id="download_link" name="download_link" required 
+                                       value="{{ game.download_link }}" placeholder="https://pixeldrain.com/u/ZCXH41bN">
+                            </div>
+                            <small class="form-text text-muted">
+                                Provide a direct download link (e.g., from pixeldrain.com, mega.nz, etc.)
+                            </small>
+                        </div>
+
+                        <!-- Game Stats -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Game Statistics</h6>
+                                        <p class="card-text">
+                                            <i class="fas fa-download me-2"></i>Downloads: {{ game.downloads or 0 }}<br>
+                                            <i class="fas fa-calendar me-2"></i>Uploaded: {{ game.upload_date[:10] if game.upload_date else 'Unknown' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,188 @@
+/* Custom styles for Game Hub */
+
+/* Game cards */
+.game-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.game-logo {
+    height: 200px;
+    object-fit: cover;
+    background-color: var(--bs-gray-200);
+}
+
+/* Drop zone styles */
+.drop-zone {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 10px;
+    min-height: 200px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.drop-zone.drag-over {
+    border-style: solid;
+}
+
+/* Loading and upload states */
+.uploading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.upload-progress {
+    transition: width 0.3s ease;
+}
+
+/* Search and filter improvements */
+.search-form {
+    background: var(--bs-light);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.85em;
+}
+
+/* Table improvements */
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Navigation improvements */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .game-card {
+        margin-bottom: 1rem;
+    }
+    
+    .drop-zone {
+        min-height: 150px;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark theme adjustments */
+[data-bs-theme="dark"] .search-form {
+    background: var(--bs-dark);
+}
+
+[data-bs-theme="dark"] .game-card:hover {
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Animation classes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* File upload preview */
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Statistics cards */
+.card.bg-primary,
+.card.bg-success,
+.card.bg-info {
+    border: none;
+}
+
+.card.bg-primary .card-body,
+.card.bg-success .card-body,
+.card.bg-info .card-body {
+    color: white;
+}
+
+/* Form improvements */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Button improvements */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* Alert improvements */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Modal improvements */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+/* Pagination improvements */
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: none;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--bs-primary);
+    color: white;
+}

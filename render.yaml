@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: game-hub
+    runtime: python3
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 main:app
+    plan: free
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    autoDeploy: true
+    healthCheckPath: /
+    disk:
+      name: game-hub-disk
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

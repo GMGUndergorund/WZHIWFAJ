@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Game - Game Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+.drop-zone {
+    border: 2px dashed #ced4da;
+    border-radius: 10px;
+    min-height: 200px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.drop-zone.drag-over {
+    border-style: solid;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-upload me-2"></i>Upload New Game</h2>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-gamepad me-2"></i>Game Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="row">
+                            <!-- Game Logo Upload -->
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Game Logo</label>
+                                <div class="drop-zone d-flex align-items-center justify-content-center flex-column p-4" 
+                                     id="dropZone">
+                                    <div id="dropZoneContent">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                        <h5>Drag & Drop Logo Here</h5>
+                                        <p class="text-muted mb-2">or click to browse files</p>
+                                        <small class="text-muted">Supports: JPG, PNG, GIF (Max: 16MB)</small>
+                                    </div>
+                                    <div id="imagePreview" style="display: none;">
+                                        <img id="previewImg" class="preview-image" alt="Preview">
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                                <i class="fas fa-times me-1"></i>Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" id="logoFile" name="logo" accept="image/*" style="display: none;">
+                            </div>
+
+                            <!-- Game Details -->
+                            <div class="col-md-6">
+                                <!-- Title -->
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Game Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           placeholder="Enter game title">
+                                </div>
+
+                                <!-- Genre -->
+                                <div class="mb-3">
+                                    <label for="genre" class="form-label">Genre</label>
+                                    <select class="form-select" id="genre" name="genre">
+                                        <option value="">Select Genre</option>
+                                        <option value="Action">Action</option>
+                                        <option value="Adventure">Adventure</option>
+                                        <option value="RPG">RPG</option>
+                                        <option value="Strategy">Strategy</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Racing">Racing</option>
+                                        <option value="Puzzle">Puzzle</option>
+                                        <option value="Horror">Horror</option>
+                                        <option value="Simulation">Simulation</option>
+                                        <option value="Fighting">Fighting</option>
+                                        <option value="Platform">Platform</option>
+                                        <option value="Shooter">Shooter</option>
+                                        <option value="MMORPG">MMORPG</option>
+                                        <option value="Casual">Casual</option>
+                                        <option value="Indie">Indie</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <!-- Tags -->
+                                <div class="mb-3">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags" 
+                                           placeholder="Enter tags separated by commas">
+                                    <small class="form-text text-muted">Example: multiplayer, open-world, fantasy</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required 
+                                      placeholder="Enter a detailed description of the game..."></textarea>
+                        </div>
+
+                        <!-- Download Link -->
+                        <div class="mb-4">
+                            <label for="download_link" class="form-label">Download Link *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                <input type="url" class="form-control" id="download_link" name="download_link" required 
+                                       placeholder="https://pixeldrain.com/u/ZCXH41bN">
+                            </div>
+                            <small class="form-text text-muted">
+                                Provide a direct download link (e.g., from pixeldrain.com, mega.nz, etc.)
+                            </small>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-upload me-1"></i>Upload Game
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

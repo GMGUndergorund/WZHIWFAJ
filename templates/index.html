@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Game Hub - Browse Games{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="text-center">
+                <h1 class="display-4 mb-3"><i class="fas fa-gamepad me-3"></i>Game Distribution Hub</h1>
+                <p class="lead">Discover and download amazing games from our collection</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('index') }}" class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Games</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="search" name="search" 
+                                       value="{{ search }}" placeholder="Search by title, description, or tags...">
+                            </div>
+                        </div>
+
+                        <!-- Genre Filter -->
+                        <div class="col-md-3">
+                            <label for="genre" class="form-label">Genre</label>
+                            <select class="form-select" id="genre" name="genre">
+                                <option value="">All Genres</option>
+                                {% for g in all_genres %}
+                                    <option value="{{ g }}" {% if g == genre %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="col-md-3">
+                            <label for="sort" class="form-label">Sort By</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title (A-Z)</option>
+                                <option value="title_desc" {% if sort_by == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                                <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Upload Date (Newest)</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Info -->
+    {% if search or genre %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Showing {{ games|length }} of {{ total_games }} games
+                {% if search %} for "<strong>{{ search }}</strong>"{% endif %}
+                {% if genre %} in genre "<strong>{{ genre }}</strong>"{% endif %}
+                <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-primary ms-2">
+                    <i class="fas fa-times me-1"></i>Clear Filters
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Games Grid -->
+    {% if games %}
+    <div class="row">
+        {% for game in games %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 game-card">
+                {% if game.logo %}
+                <img src="{{ url_for('uploaded_file', filename=game.logo) }}" 
+                     class="card-img-top game-logo" alt="{{ game.title }}">
+                {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary" 
+                     style="height: 200px;">
+                    <i class="fas fa-gamepad fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ game.title }}</h5>
+                    <p class="card-text flex-grow-1">
+                        {{ game.description[:100] }}{% if game.description|length > 100 %}...{% endif %}
+                    </p>
+                    
+                    {% if game.genre %}
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-tag me-1"></i>{{ game.genre }}
+                        </small>
+                    </p>
+                    {% endif %}
+
+                    {% if game.tags %}
+                    <div class="mb-2">
+                        {% for tag in game.tags[:3] %}
+                        <span class="badge bg-secondary me-1">{{ tag }}</span>
+                        {% endfor %}
+                        {% if game.tags|length > 3 %}
+                        <span class="badge bg-info">+{{ game.tags|length - 3 }} more</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-auto">
+                        <a href="{{ game.download_link }}" class="btn btn-success w-100" target="_blank"
+                           onclick="trackDownload('{{ game.id }}')">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                        <small class="text-muted d-block text-center mt-1">
+                            <i class="fas fa-download me-1"></i>{{ game.downloads or 0 }} downloads
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Game pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('index', page=page-1, search=search, genre=genre, sort=sort_by) }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ p }}</span>
+                        </li>
+                        {% elif p <= 3 or p >= total_pages - 2 or (p >= page - 1 and p <= page + 1) %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('index', page=p, search=search, genre=genre, sort=sort_by) }}">{{ p }}</a>
+                        </li>
+                        {% elif p == 4 or p == total_pages - 3 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('index', page=page+1, search=search, genre=genre, sort=sort_by) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- No Games Found -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h3>No games found</h3>
+                {% if search or genre %}
+                <p class="lead">No games match your current filters. Try adjusting your search criteria.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-refresh me-1"></i>View All Games
+                </a>
+                {% else %}
+                <p class="lead">The game library is currently empty.</p>
+                {% if session.admin_logged_in %}
+                <a href="{{ url_for('upload_game') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Upload First Game
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function trackDownload(gameId) {
+    // This would normally send an AJAX request to track downloads
+    // For now, we'll just increment the counter on the backend when needed
+    console.log('Download tracked for game:', gameId);
+}
+</script>
+{% endblock %}
